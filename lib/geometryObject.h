@@ -1,7 +1,13 @@
+//
+// Created by maxim on 6/24/19.
+//
+
 #include <stdint.h>
 #include <malloc.h>
+#include <math.h>
 
 #include "structs.h"
+#include "vecMath.h"
 #include "ray.h"
 
 typedef enum _geometryObjectType {
@@ -47,4 +53,4 @@ geometryObject_t* createSphere(vec3_t position, float radius);
 geometryObject_t* createBox();
 geometryObject_t* createPlane();
 
-
+void freeGeometryObject(geometryObject_t* object);
