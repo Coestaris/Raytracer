@@ -10,16 +10,10 @@
 
 #include "structs.h"
 #include "geometryObject.h"
+#include "ray.h"
 
 #define OBJECTS_MAX_COUNT_START 5
 #define OBJECTS_MAX_COUNT_INCREASE 1.5
-
-typedef struct _camera {
-    vec3_t position;
-    vec3_t direction;
-    float fov;
-
-} camera_t;
 
 typedef struct _renderScene {
     camera_t* camera;

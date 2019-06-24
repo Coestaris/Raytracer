@@ -6,7 +6,8 @@
 
 color_t cast_ray(ray_t ray, renderScene_t* scene)
 {
-    float nearestDist = -1;
+    float nearestDist = 9999999;
+    int found = 0;
 
     color_t nearestColor;
     vec3_t point;
@@ -17,15 +18,33 @@ color_t cast_ray(ray_t ray, renderScene_t* scene)
         {
             vec3_t line = vec3(ray.position.x - point.x, ray.position.y - point.y, ray.position.z - point.z);
             float len = vec3_len(line);
-            if(len > nearestDist)
+            if(len < nearestDist)
             {
                 nearestDist = len;
                 nearestColor = scene->geometryObjects[i]->color;
             }
+            found = true;
         }
     }
 
-    return nearestDist == -1 ? scene->environmentColor : nearestColor;
+    return found ? nearestColor : scene->environmentColor;
+}
+
+void raycast(renderScene_t* scene)
+{
+    glClearColor(0, 0, 0, 0);
+    glBegin(GL_POINTS);
+    for(float pixelX = scene->screenPos.x + 0.5 - scene->screenSize.x / 2.0; pixelX < scene->screenSize.x / 2.0 + scene->screenPos.x; pixelX += 1)
+        for(float pixelY = scene->screenPos.y + 0.5 - scene->screenSize.x / 2.0; pixelY < scene->screenSize.y / 2.0 + scene->screenPos.y; pixelY += 1)
+        {
+            ray_t ray = getRay(scene->camera, pixelX, pixelY);
+            color_t color = cast_ray(ray, scene);
+
+            glColor3f(color.r, color.g, color.b);
+            glVertex2f(pixelX + scene->screenSize.x / 2.0, pixelY + scene->screenSize.y / 2.0);
+        }
+    glEnd();
+    graphicsFlush();
 }
 
 void raycast_async(renderScene_t* scene, size_t bufferCount, void drawCallback(pixelBuffer_t* buffer))
@@ -38,24 +57,14 @@ void raycast_async(renderScene_t* scene, size_t bufferCount, void drawCallback(p
 
     size_t bufferCounter = 0;
 
-    float scale = tan(scene->camera->fov * 0.5);
-    float imageAspectRatio = scene->screenSize.x / (float) scene->screenSize.y;
-    vec3_t orig = vec3(0, 0, 0);
-
-    for(size_t pixelX = scene->screenPos.x; pixelX < scene->screenSize.x + scene->screenPos.x; pixelX++)
-        for(size_t pixelY = scene->screenPos.y; pixelY < scene->screenSize.y + scene->screenPos.y; pixelY++)
+    for(float pixelX = scene->screenPos.x + 0.5 - scene->screenSize.x / 2.0; pixelX < scene->screenSize.x / 2.0 + scene->screenPos.x; pixelX += 1)
+        for(float pixelY = scene->screenPos.y + 0.5 - scene->screenSize.x / 2.0; pixelY < scene->screenSize.y / 2.0 + scene->screenPos.y; pixelY += 1)
         {
-            float x = (2 * (pixelX + 0.5) / (float)scene->screenSize.x - 1) * imageAspectRatio * scale;
-            float y = (1 - 2 * (pixelY + 0.5) / (float)scene->screenSize.y) * scale;
-
-            vec3_t dir = vec3(x, y, -1);
-            dir = vec3_normalize(dir);
-
-            ray_t ray = { orig, dir };
+            ray_t ray = getRay(scene->camera, pixelX, pixelY);
 
             buffer->colors[bufferCounter] = cast_ray(ray, scene);
-            buffer->pixels[bufferCounter].x = pixelX;
-            buffer->pixels[bufferCounter].y = pixelY;
+            buffer->pixels[bufferCounter].x = pixelX + scene->screenSize.x / 2.0;
+            buffer->pixels[bufferCounter].y = pixelY + scene->screenSize.y / 2.0;
             bufferCounter++;
 
             if(bufferCounter == bufferCount)

@@ -8,9 +8,11 @@ renderScene_t* createScene(vec3_t cameraPos, vec3_t cameraDir, float fov, vec2_t
 {
     renderScene_t* scene = malloc(sizeof(renderScene_t));
     scene->camera = malloc(sizeof(camera_t));
-    scene->camera->position = cameraPos;
-    scene->camera->direction = cameraDir;
+    scene->camera->eye = cameraPos;
+    scene->camera->center = cameraDir;
     scene->camera->fov = fov;
+
+    recalcCamera(scene->camera);
 
     scene->screenPos = viewportPos;
     scene->screenSize = viewportSize;
@@ -36,7 +38,7 @@ void pushGeometryObject(renderScene_t* scene, geometryObject_t* object)
     if(scene->geometryObjectsCount == scene->geometryObjectsMaxCount - 1)
     {
         size_t newSize = (int)((float)scene->geometryObjectsCount * OBJECTS_MAX_COUNT_INCREASE);
-        scene->geometryObjects = realloc(scene, newSize * sizeof(geometryObject_t*));
+        scene->geometryObjects = realloc(scene->geometryObjects, newSize * sizeof(geometryObject_t*));
         scene->geometryObjectsMaxCount = newSize;
     }
 
