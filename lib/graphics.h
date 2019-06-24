@@ -10,7 +10,8 @@
 #include <stdio.h>
 #include <GL/freeglut.h>
 
-void initGraphics(int argc, char** argv, uint16_t winW, uint16_t winH, const char* winTitle);
+void initGraphics(int argc, const char** argv, uint16_t winW, uint16_t winH, const char* winTitle);
+void freezeGraphics();
 void closeGraphics();
 
 #endif //RAYTRACER_GRAPHICS_H

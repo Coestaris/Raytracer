@@ -4,7 +4,7 @@
 
 #include "graphics.h"
 
-void initGraphics(int argc, char** argv, uint16_t winW, uint16_t winH, const char* winTitle)
+void initGraphics(int argc, const char** argv, uint16_t winW, uint16_t winH, const char* winTitle)
 {
 #ifdef OVERRIDE_GL_VERSION
     puts("Overriding default OpenGL version...");
@@ -14,7 +14,7 @@ void initGraphics(int argc, char** argv, uint16_t winW, uint16_t winH, const cha
 #endif
     //srand(time(NULL));
 
-    glutInit(&argc, argv);
+    glutInit(&argc, (char**)argv);
 
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_ALPHA);
     glutInitWindowSize(winW, winH);
@@ -41,6 +41,23 @@ void initGraphics(int argc, char** argv, uint16_t winW, uint16_t winH, const cha
     printf("[GL Spec]: Using OpenGL Rendered: %s\n", (char*) glGetString(GL_RENDERER));
     printf("[GL Spec]: GLSH Version: %s\n=========\n", (char*) glGetString(GL_SHADING_LANGUAGE_VERSION));
 }
+
+void displayFunc()
+{
+    glClear(GL_COLOR_BUFFER_BIT);
+    glClearColor(0.0, 0.0, 0.0, 0.0);
+
+    glutSwapBuffers();
+}
+
+void freezeGraphics()
+{
+    glutDisplayFunc(displayFunc);
+    glutIdleFunc(displayFunc);
+    glutMainLoop();
+}
+
+
 
 void closeGraphics()
 {

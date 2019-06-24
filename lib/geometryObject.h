@@ -2,6 +2,9 @@
 // Created by maxim on 6/24/19.
 //
 
+#ifndef RAYTRACER_GEOMETRYOBJECT_H
+#define RAYTRACER_GEOMETRYOBJECT_H
+
 #include <stdint.h>
 #include <malloc.h>
 #include <math.h>
@@ -24,6 +27,8 @@ typedef struct _geometryObject {
 
     void* data;
     uint8_t (*intersect)(struct _geometryObject* this, ray_t ray, vec3_t* point);
+
+    color_t color;
 
 } geometryObject_t;
 
@@ -49,8 +54,10 @@ uint8_t intersectSphere(struct _geometryObject* this, ray_t ray, vec3_t* point);
 uint8_t intersectBox(struct _geometryObject* this, ray_t ray, vec3_t* point);
 uint8_t intersectPlane(struct _geometryObject* this, ray_t ray, vec3_t* point);
 
-geometryObject_t* createSphere(vec3_t position, float radius);
-geometryObject_t* createBox();
-geometryObject_t* createPlane();
+geometryObject_t* createSphere(color_t color, vec3_t position, float radius);
+geometryObject_t* createBox(color_t color);
+geometryObject_t* createPlane(color_t color);
 
 void freeGeometryObject(geometryObject_t* object);
+
+#endif //RAYTRACER_GEOMETRYOBJECT_H

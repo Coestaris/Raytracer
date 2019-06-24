@@ -4,35 +4,38 @@
 
 #include "geometryObject.h"
 
-geometryObject_t* createSphere(vec3_t position, float radius)
+geometryObject_t* createSphere(color_t color, vec3_t position, float radius)
 {
     geometryObject_t* object = malloc(sizeof(geometryObject_t));
     object->data = malloc(sizeof(sphereData_t));
     sphereData_t* sd = object->data;
     sd->center = position;
     sd->radius = radius;
+    object->color = color;
     object->type = sphere;
     object->intersect = intersectSphere;
     return object;
 }
 
-geometryObject_t* createBox()
+geometryObject_t* createBox(color_t color)
 {
     geometryObject_t* object = malloc(sizeof(geometryObject_t));
     object->data = malloc(sizeof(boxData_t));
     boxData_t* sd = object->data;
 
+    object->color = color;
     object->type = box;
     object->intersect = intersectBox;
     return object;
 }
 
-geometryObject_t* createPlane()
+geometryObject_t* createPlane(color_t color)
 {
     geometryObject_t* object = malloc(sizeof(geometryObject_t));
     object->data = malloc(sizeof(planeData_t));
     planeData_t* sd = object->data;
 
+    object->color = color;
     object->type = plane;
     object->intersect = intersectPlane;
     return object;

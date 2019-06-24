@@ -4,12 +4,14 @@
 
 #include "renderScene.h"
 
-renderScene_t* createScene(vec3_t cameraPos, vec3_t cameraDir, vec2_t viewportPos, vec2_t viewportSize)
+renderScene_t* createScene(vec3_t cameraPos, vec3_t cameraDir, float fov, vec2_t viewportPos, vec2_t viewportSize)
 {
     renderScene_t* scene = malloc(sizeof(renderScene_t));
     scene->camera = malloc(sizeof(camera_t));
     scene->camera->position = cameraPos;
     scene->camera->direction = cameraDir;
+    scene->camera->fov = fov;
+
     scene->screenPos = viewportPos;
     scene->screenSize = viewportSize;
 
