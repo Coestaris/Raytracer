@@ -3,6 +3,7 @@
 //
 
 #include <stdio.h>
+#include <unistd.h>
 
 #include "lib/renderScene.h"
 #include "lib/graphics.h"
@@ -16,13 +17,13 @@ renderScene_t* scene;
 void setupScene(void)
 {
     scene = createScene(
-            vec3(10, 10, 10), vec3(0, 1, 0), 0.5,
+            vec3(10, 10, 10), vec3(0, 1, 0), 0.05,
             vec2(10, 10), vec2(WIN_H - 10, WIN_W - 10));
 
-    pushGeometryObject(scene, createSphere(color(0, 1, 1, 1), vec3(1, 1, 1), 3));
-    pushGeometryObject(scene, createSphere(color(1, 0, 1, 1), vec3(2, 1, 1), 2));
-    pushGeometryObject(scene, createSphere(color(1, 1, 0, 1), vec3(1, 2, 1), 2));
-    pushGeometryObject(scene, createSphere(color(1, 0, 0, 1), vec3(5, 1, -1), 4));
+    pushGeometryObject(scene, createSphere(color(0, 1, 1, 1), vec3(1, 1, 100), 1.4));
+    pushGeometryObject(scene, createSphere(color(1, 0, 1, 1), vec3(-1, 1, 200), 2));
+    pushGeometryObject(scene, createSphere(color(1, 1, 0, 1), vec3(1, 2, 69), 0.1));
+    pushGeometryObject(scene, createSphere(color(1, 0, 0, 1), vec3(3, 3, 100), 2));
 
     scene->environmentColor = color(0, 0, 0, 1);
 }
@@ -39,6 +40,8 @@ void drawCallback(pixelBuffer_t* buffer)
         }
     }
     glEnd();
+    graphicsFlush();
+    //usleep(1000);
 }
 
 int main(int argc, char const *argv[])
@@ -47,7 +50,7 @@ int main(int argc, char const *argv[])
 
     setupScene();
 
-    raycast_async(scene, 1000, drawCallback);
+    raycast_async(scene, 10000, drawCallback);
 
     freezeGraphics();
 

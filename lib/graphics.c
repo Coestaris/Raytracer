@@ -4,7 +4,10 @@
 
 #include "graphics.h"
 
-void initGraphics(int argc, const char** argv, uint16_t winW, uint16_t winH, const char* winTitle)
+uint16_t winW;
+uint16_t winH;
+
+void initGraphics(int argc, const char** argv, uint16_t win_w, uint16_t win_h, const char* winTitle)
 {
 #ifdef OVERRIDE_GL_VERSION
     puts("Overriding default OpenGL version...");
@@ -12,11 +15,17 @@ void initGraphics(int argc, const char** argv, uint16_t winW, uint16_t winH, con
     glutInitContextVersion(MAJOR_GL_VERSION, MINOR_GL_VERSION);
     glutInitContextProfile(GLUT_CORE_PROFILE);
 #endif
-    //srand(time(NULL));
+
+    winW = win_w;
+    winH = win_h;
 
     glutInit(&argc, (char**)argv);
 
+#ifdef USE_DOUBLE_BUFFERING
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_ALPHA);
+#else
+    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGBA | GLUT_ALPHA);
+#endif
     glutInitWindowSize(winW, winH);
 
     glutCreateWindow(winTitle);
@@ -26,7 +35,6 @@ void initGraphics(int argc, const char** argv, uint16_t winW, uint16_t winH, con
     glLoadIdentity();
     glOrtho(0, winW, winH, 0, -1, 1);
     glMatrixMode(GL_MODELVIEW);
-
 
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_DEPTH_TEST);
@@ -42,12 +50,20 @@ void initGraphics(int argc, const char** argv, uint16_t winW, uint16_t winH, con
     printf("[GL Spec]: GLSH Version: %s\n=========\n", (char*) glGetString(GL_SHADING_LANGUAGE_VERSION));
 }
 
+void graphicsFlush(void)
+{
+#ifdef USE_DOUBLE_BUFFERING
+    glutSwapBuffers();
+#else
+    glFlush();
+#endif
+}
+
 void displayFunc()
 {
-    glClear(GL_COLOR_BUFFER_BIT);
-    glClearColor(0.0, 0.0, 0.0, 0.0);
-
-    glutSwapBuffers();
+    //glClear(GL_COLOR_BUFFER_BIT);
+    //glClearColor(0.0, 0.0, 0.0, 0.0);
+    graphicsFlush();
 }
 
 void freezeGraphics()
@@ -56,8 +72,6 @@ void freezeGraphics()
     glutIdleFunc(displayFunc);
     glutMainLoop();
 }
-
-
 
 void closeGraphics()
 {
