@@ -53,11 +53,12 @@ void pushGeometryObject(renderScene_t* scene, geometryObject_t* object)
     scene->geometryObjects[scene->geometryObjectsCount++] = object;
 }
 
-lightSource_t* createLightSource(vec3_t position, float brightness)
+lightSource_t* createLightSource(vec3_t position, color_t color, float intensity)
 {
     lightSource_t* ls = malloc(sizeof(lightSource_t));
     ls->position = position;
-    ls->brightness = brightness;
+    ls->intensity = intensity;
+    ls->color = color;
     return ls;
 }
 
@@ -71,4 +72,10 @@ void pushLightSource(renderScene_t* scene, lightSource_t* ls)
     }
 
     scene->lightSources[scene->lightSourcesCount++] = ls;
+}
+
+color_t getLightIntensity(lightSource_t* source, vec3_t point)
+{
+    float r2 = vec3_len( vec3_sub(source->position, point));
+    return color_mult(source->color, source->intensity / (4 * M_PI * r2));
 }

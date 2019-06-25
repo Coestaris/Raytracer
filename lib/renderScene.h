@@ -17,7 +17,8 @@
 
 typedef struct _lightSource {
     vec3_t position;
-    float brightness;
+    float intensity;
+    color_t color;
 
 } lightSource_t;
 
@@ -43,10 +44,12 @@ typedef struct _renderScene {
 
 } renderScene_t;
 
+color_t getLightIntensity(lightSource_t* source, vec3_t point);
+
 renderScene_t* createScene(vec3_t cameraPos, vec3_t cameraDir, float fov, vec2_t viewportPos, vec2_t viewportSize);
 void freeScene(renderScene_t* scene, uint8_t freeObjects);
 void pushGeometryObject(renderScene_t* scene, geometryObject_t* object);
-lightSource_t* createLightSource(vec3_t position, float brightness);
+lightSource_t* createLightSource(vec3_t position, color_t color, float intensity);
 void pushLightSource(renderScene_t* scene, lightSource_t* ls);
 
 #endif //RAYTRACER_RENDERSCENE_H

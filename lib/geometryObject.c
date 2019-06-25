@@ -4,14 +4,14 @@
 
 #include "geometryObject.h"
 
-geometryObject_t* createSphere(color_t color, vec3_t position, float radius)
+geometryObject_t* createSphere(material_t* mat, vec3_t position, float radius)
 {
     geometryObject_t* object = malloc(sizeof(geometryObject_t));
     object->data = malloc(sizeof(sphereData_t));
     sphereData_t* sd = object->data;
     sd->center = position;
     sd->radius = radius;
-    object->color = color;
+    object->material = mat;
 
     object->type = sphere;
     object->normal = normalSphere;
@@ -19,20 +19,20 @@ geometryObject_t* createSphere(color_t color, vec3_t position, float radius)
     return object;
 }
 
-geometryObject_t* createBox(color_t color)
+geometryObject_t* createBox(material_t* mat)
 {
     geometryObject_t* object = malloc(sizeof(geometryObject_t));
     object->data = malloc(sizeof(boxData_t));
     boxData_t* bd = object->data;
 
-    object->color = color;
+    object->material = mat;
     object->type = box;
     object->normal = normalBox;
     object->intersect = intersectBox;
     return object;
 }
 
-geometryObject_t* createPlane(color_t color, vec3_t normal, vec3_t point)
+geometryObject_t* createPlane(material_t* mat, vec3_t normal, vec3_t point)
 {
     geometryObject_t* object = malloc(sizeof(geometryObject_t));
     object->data = malloc(sizeof(planeData_t));
@@ -41,16 +41,14 @@ geometryObject_t* createPlane(color_t color, vec3_t normal, vec3_t point)
     pd->normal = normal;
     pd->point = point;
 
-    object->color = color;
+    object->material = mat;
     object->type = plane;
     object->normal = normalPlane;
     object->intersect = intersectPlane;
     return object;
 }
 
-#define E 0.001
-
-uint8_t intersectSphere(struct _geometryObject* this, ray_t ray, float* t)
+uint8_t intersectSphere(geometryObject_t* this, ray_t ray, float* t)
 {
     sphereData_t* sd = this->data;
 
@@ -68,12 +66,6 @@ uint8_t intersectSphere(struct _geometryObject* this, ray_t ray, float* t)
     float t1 = (-b + sq) / (2.0 * a);
     float t2 = (-b - sq) / (2.0 * a);
 
-/*    if(fabs(discriminant) <= 1e-3)
-    {
-        *t = t1;
-        return true;
-    }*/
-
     if(t1 > 1 || t2 > 1)
         return false;
 
@@ -81,14 +73,14 @@ uint8_t intersectSphere(struct _geometryObject* this, ray_t ray, float* t)
     return true;
 }
 
-uint8_t intersectBox(struct _geometryObject* this, ray_t ray, float* point)
+uint8_t intersectBox(geometryObject_t* this, ray_t ray, float* point)
 {
     boxData_t* bd = this->data;
 
     return false;
 }
 
-uint8_t intersectPlane(struct _geometryObject* this, ray_t ray, float* point)
+uint8_t intersectPlane(geometryObject_t* this, ray_t ray, float* point)
 {
     planeData_t* pd = this->data;
     float denom = vec3_dot(pd->normal, ray.direction);
@@ -105,19 +97,19 @@ uint8_t intersectPlane(struct _geometryObject* this, ray_t ray, float* point)
     return false;
 }
 
-vec3_t normalSphere(struct _geometryObject* this, vec3_t point)
+vec3_t normalSphere(geometryObject_t* this, vec3_t point)
 {
     sphereData_t* sd = this->data;
     return vec3_normalize(vec3_sub(point, sd->center));
 }
 
-vec3_t normalBox(struct _geometryObject* this, vec3_t point)
+vec3_t normalBox(geometryObject_t* this, vec3_t point)
 {
     boxData_t* bd = this->data;
     return vec3(0, 0, 0);
 }
 
-vec3_t normalPlane(struct _geometryObject* this, vec3_t point)
+vec3_t normalPlane(geometryObject_t* this, vec3_t point)
 {
     planeData_t* pd = this->data;
     return pd->normal;

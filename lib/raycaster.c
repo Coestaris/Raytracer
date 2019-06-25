@@ -45,19 +45,23 @@ color_t cast_ray(ray_t ray, renderScene_t* scene, int depth)
         return scene->environmentColor;
 
     vec3_t point = getRayPoint(ray, -t);
-    color_t resultColor = nearestObject->color;
+    color_t resultColor = color(
+            scene->environmentDarkness,
+            scene->environmentDarkness,
+            scene->environmentDarkness,
+            1);
 
-    if(nearestObject->type != plane)
+    if(nearestObject->material->reflectionValue != 0)
     {
         vec3_t reflectedRay = reflect(ray.direction, nearestObject->normal(nearestObject, point));
 
         ray_t reflect = {.direction = vec3_normalize(reflectedRay), .position = point};
 
-        resultColor = mixColors(nearestObject->color, cast_ray(reflect, scene, depth - 1), 0.6);
+        resultColor = mixColors(nearestObject->material->color, cast_ray(reflect, scene, depth - 1),
+                                nearestObject->material->reflectionValue);
     }
 
     //lighting
-    float d = scene->environmentDarkness;
     for(size_t i = 0; i < scene->lightSourcesCount; i++)
     {
         vec3_t rayDir = vec3_normalize(vec3_sub(point, scene->lightSources[i]->position));
@@ -69,14 +73,19 @@ color_t cast_ray(ray_t ray, renderScene_t* scene, int depth)
         if(no == NULL)
         {
             vec3_t normal = nearestObject->normal(nearestObject, point);
-            d += vec3_dot(rayDir, normal) * scene->lightSources[i]->brightness;
+            color_t intensity = getLightIntensity(scene->lightSources[i], point);
+
+            resultColor = color_cadd(
+                    resultColor,
+                    color_mult(intensity, - nearestObject->material->albedo * fmin(0, vec3_dot(rayDir, normal))));
+        }
+        else
+        {
+
         }
     }
 
-    return color(clip(resultColor.r * d),
-                 clip(resultColor.g * d),
-                 clip(resultColor.b * d),
-                 1);
+    return color_clip(color_cmult(nearestObject->material->color, resultColor));
 }
 
 void raycast(renderScene_t* scene, void drawCallback(pixelBuffer_t* buffer))
@@ -104,14 +113,11 @@ void raycast_async(renderScene_t* scene, size_t bufferCount, void drawCallback(p
                         getRay(scene->camera,
                                 pixelX + drand48() * scene->antialiasingRange,
                                 pixelY + drand48() * scene->antialiasingRange), scene, 10);
-                c.r += castedColor.r;
-                c.g += castedColor.g;
-                c.b += castedColor.b;
+
+                c = color_cadd(c, castedColor);
             }
 
-            c.r /= scene->antialiasingIterations;
-            c.g /= scene->antialiasingIterations;
-            c.b /= scene->antialiasingIterations;
+            c = color_div(c, scene->antialiasingIterations);
 
             buffer->colors[bufferCounter] = c;
             buffer->pixels[bufferCounter].x = pixelX + scene->screenSize.x / 2.0;

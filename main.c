@@ -11,6 +11,7 @@
 
 #define WIN_W 600
 #define WIN_H 600
+#define SPHERE_COUNT 8
 
 renderScene_t* scene;
 
@@ -20,24 +21,34 @@ void setupScene(void)
             vec3(-20, 15, -15), vec3(2.5, 2.5, 2.5), .07,
             vec2(0, 0), vec2(WIN_W, WIN_H));
 
-    pushGeometryObject(scene, createSphere(randColor(0), vec3(0, 0, 0), 1.5));
-    pushGeometryObject(scene, createSphere(randColor(0), vec3(7, 0, 0), 2.5));
-    pushGeometryObject(scene, createSphere(randColor(0), vec3(0, 8, 0), 2));
-    pushGeometryObject(scene, createSphere(randColor(0), vec3(8, 6, 0), 2));
+    vec3_t coordinates[SPHERE_COUNT] = {
+        vec3(0, 0, 0), vec3(7, 0, 0), vec3(0, 8, 0), vec3(8, 6, 0),
+        vec3(0, 0, 6), vec3(7, 0, 5), vec3(0, 8, 7), vec3(7, 8, 6),
+    };
 
-    pushGeometryObject(scene, createSphere(randColor(0), vec3(0, 0, 6), 2));
-    pushGeometryObject(scene, createSphere(randColor(0), vec3(7, 0, 5), 2));
-    pushGeometryObject(scene, createSphere(randColor(0), vec3(0, 8, 7), 2.4));
-    pushGeometryObject(scene, createSphere(randColor(0), vec3(7, 8, 6), 1.5));
+    float radius[SPHERE_COUNT] = {
+        1.5, 2.5, 2,   2,
+        2,   2,   2.4, 1.5,
+    };
 
-    pushGeometryObject(scene, createPlane(color(.5, .5, .5, 1), vec3(0, 1, 0), vec3(2.5, 0, 2.5)));
+    material_t* materials[SPHERE_COUNT] = {
+        createMaterial(randColor(0), 2, drand48()), createMaterial(randColor(0), 2, drand48()),
+        createMaterial(randColor(0), 2, drand48()), createMaterial(randColor(0), 2, drand48()),
+        createMaterial(randColor(0), 2, drand48()), createMaterial(randColor(0), 2, drand48()),
+        createMaterial(randColor(0), 2, drand48()), createMaterial(randColor(0), 2, drand48()),
+    };
+    material_t* planeMaterial = createMaterial(color(.5, .5, .5, 1), 2, 0.7);
 
-    //pushLightSource(scene, createLightSource(vec3(20, 20, -20), 0.8));
-    pushLightSource(scene, createLightSource(vec3(-20, 20, 20), 2));
+    for(size_t i = 0; i < SPHERE_COUNT; i++)
+        pushGeometryObject(scene, createSphere(materials[i], coordinates[i], radius[i]));
+    pushGeometryObject(scene, createPlane(planeMaterial, vec3(0, 1, 0), vec3(2.5, 0, 2.5)));
+
+    pushLightSource(scene, createLightSource(vec3(20, 20, -20), color(1, 0, 1, 1), 50));
+    pushLightSource(scene, createLightSource(vec3(-20, 20, 20), color(0, 1, 1, 1), 50));
 
     scene->antialiasingIterations = 5;
     scene->antialiasingRange = 1;
-    scene->environmentDarkness = 0.15;
+    scene->environmentDarkness = 0.05;
     scene->environmentColor = color(0, 0, 0, 1);
 }
 

@@ -56,3 +56,67 @@ color_t mixColors(color_t c1, color_t c2, float k)
             c1.b * k + c2.b * (1 - k),
             c1.a * k + c2.a * (1 - k));
 }
+
+color_t color_clip(color_t a)
+{
+    return color(
+            clip(a.r),
+            clip(a.g),
+            clip(a.b),
+            clip(a.a));
+}
+
+color_t color_cadd(color_t a, color_t b)
+{
+    return color(
+            a.r + b.r,
+            a.g + b.g,
+            a.b + b.b,
+            a.a + a.a);
+}
+
+color_t color_cmult(color_t a, color_t b)
+{
+    return color(
+            a.r * b.r,
+            a.g * b.g,
+            a.b * b.b,
+            a.a * a.a);
+}
+
+color_t color_csub(color_t a, color_t b)
+{
+    return color(
+            a.r - b.r,
+            a.g - b.g,
+            a.b - b.b,
+            a.a - a.a);
+}
+
+color_t color_mult(color_t a, float k)
+{
+    return color(a.r * k, a.g * k, a.b * k, a.a * k);
+}
+
+color_t color_div(color_t a, float k)
+{
+    return color(a.r / k, a.g / k, a.b / k, a.a / k);
+}
+
+color_t color_sub(color_t a, float k)
+{
+    return color(
+            a.r - k,
+            a.g - k,
+            a.b - k,
+            a.a - k);
+}
+
+color_t color_add(color_t a, float k)
+{
+    return color(
+            a.r + k,
+            a.g + k,
+            a.b + k,
+            a.a + k);
+}

@@ -12,6 +12,7 @@
 #include "structs.h"
 #include "vecMath.h"
 #include "ray.h"
+#include "material.h"
 
 typedef enum _geometryObjectType {
     box,
@@ -29,7 +30,7 @@ typedef struct _geometryObject {
     uint8_t (*intersect)(struct _geometryObject* this, ray_t ray, float* point);
     vec3_t (*normal)(struct _geometryObject* this, vec3_t point);
 
-    color_t color;
+    material_t* material;
 
 } geometryObject_t;
 
@@ -62,9 +63,9 @@ vec3_t normalSphere(struct _geometryObject* this, vec3_t point);
 vec3_t normalBox(struct _geometryObject* this, vec3_t point);
 vec3_t normalPlane(struct _geometryObject* this, vec3_t point);
 
-geometryObject_t* createSphere(color_t color, vec3_t position, float radius);
-geometryObject_t* createBox(color_t color);
-geometryObject_t* createPlane(color_t color, vec3_t normal, vec3_t point);
+geometryObject_t* createSphere(material_t* mat, vec3_t position, float radius);
+geometryObject_t* createBox(material_t* mat);
+geometryObject_t* createPlane(material_t* mat, vec3_t normal, vec3_t point);
 
 void freeGeometryObject(geometryObject_t* object);
 
