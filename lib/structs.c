@@ -47,3 +47,12 @@ float clip(float a)
     a = fabsf(a);
     return a > 1 ? 1 : a;
 }
+
+color_t mixColors(color_t c1, color_t c2, float k)
+{
+    return color(
+            c1.r * k + c2.r * (1 - k),
+            c1.g * k + c2.g * (1 - k),
+            c1.b * k + c2.b * (1 - k),
+            c1.a * k + c2.a * (1 - k));
+}

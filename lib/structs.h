@@ -33,5 +33,6 @@ color_t color(float r, float g, float b, float a);
 float clip(float a);
 float randRange(float a, float b);
 color_t randColor(float min);
+color_t mixColors(color_t c1, color_t c2, float k);
 
 #endif //RAYTRACER_STRUCTS_H

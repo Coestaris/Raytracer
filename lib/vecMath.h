@@ -9,7 +9,7 @@
 
 #include "structs.h"
 
-#define USE_FISQRT
+//#define USE_FISQRT
 
 vec2_t vec2_add(vec2_t a, vec2_t b);
 vec2_t vec2_sub(vec2_t a, vec2_t b);

@@ -37,6 +37,10 @@ typedef struct _renderScene {
 
     color_t environmentColor;
 
+    float environmentDarkness;
+    size_t antialiasingIterations;
+    float antialiasingRange;
+
 } renderScene_t;
 
 renderScene_t* createScene(vec3_t cameraPos, vec3_t cameraDir, float fov, vec2_t viewportPos, vec2_t viewportSize);
