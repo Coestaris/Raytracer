@@ -23,7 +23,7 @@ geometryObject_t* createBox(color_t color)
 {
     geometryObject_t* object = malloc(sizeof(geometryObject_t));
     object->data = malloc(sizeof(boxData_t));
-    boxData_t* sd = object->data;
+    boxData_t* bd = object->data;
 
     object->color = color;
     object->type = box;
@@ -32,11 +32,14 @@ geometryObject_t* createBox(color_t color)
     return object;
 }
 
-geometryObject_t* createPlane(color_t color)
+geometryObject_t* createPlane(color_t color, vec3_t normal, vec3_t point)
 {
     geometryObject_t* object = malloc(sizeof(geometryObject_t));
     object->data = malloc(sizeof(planeData_t));
-    planeData_t* sd = object->data;
+    planeData_t* pd = object->data;
+
+    pd->normal = normal;
+    pd->point = point;
 
     object->color = color;
     object->type = plane;
@@ -59,21 +62,36 @@ uint8_t intersectSphere(struct _geometryObject* this, ray_t ray, float* t)
     float discriminant = b * b - 4 * a * c;
     if(discriminant < 0) return 0;
 
-    *t = (-b - sqrt(discriminant)) / (2.0 * a);
-    return 1;
+    float sq = sqrt(discriminant);
+    float t1 = (-b + sq) / (2.0 * a);
+    float t2 = (-b - sq) / (2.0 * a);
+
+    *t = t1 > t2 ? t1 : t2;
+    return true;
 }
 
 uint8_t intersectBox(struct _geometryObject* this, ray_t ray, float* point)
 {
     boxData_t* bd = this->data;
 
-    return 0;
+    return false;
 }
 
 uint8_t intersectPlane(struct _geometryObject* this, ray_t ray, float* point)
 {
     planeData_t* pd = this->data;
-    return 0;
+    float denom = vec3_dot(pd->normal, ray.direction);
+    if (denom > 1e-6) {
+
+        float t = vec3_dot(vec3_sub(ray.position, pd->point), pd->normal) / denom;
+        if(t > 0)
+        {
+            *point = -t;
+            return true;
+        }
+    }
+
+    return false;
 }
 
 vec3_t normalSphere(struct _geometryObject* this, vec3_t point)
@@ -91,7 +109,7 @@ vec3_t normalBox(struct _geometryObject* this, vec3_t point)
 vec3_t normalPlane(struct _geometryObject* this, vec3_t point)
 {
     planeData_t* pd = this->data;
-    return vec3(0, 0, 0);
+    return pd->normal;
 }
 
 

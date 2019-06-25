@@ -44,10 +44,13 @@ typedef struct _boxData{
 } boxData_t;
 
 typedef struct _planeData{
-    vec3_t a;
-    vec3_t b;
-    vec3_t c;
-    vec3_t d;
+    vec3_t normal;
+    vec3_t point;
+
+    float radius;
+
+    float radius2;
+
 
 } planeData_t;
 
@@ -61,7 +64,7 @@ vec3_t normalPlane(struct _geometryObject* this, vec3_t point);
 
 geometryObject_t* createSphere(color_t color, vec3_t position, float radius);
 geometryObject_t* createBox(color_t color);
-geometryObject_t* createPlane(color_t color);
+geometryObject_t* createPlane(color_t color, vec3_t normal, vec3_t point);
 
 void freeGeometryObject(geometryObject_t* object);
 
