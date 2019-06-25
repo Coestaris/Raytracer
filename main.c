@@ -4,7 +4,6 @@
 
 #include <stdio.h>
 #include <unistd.h>
-#include <sudo_plugin.h>
 
 #include "lib/renderScene.h"
 #include "lib/graphics.h"
