@@ -26,7 +26,8 @@ typedef struct _geometryObject {
     geometryObjectType_t type;
 
     void* data;
-    uint8_t (*intersect)(struct _geometryObject* this, ray_t ray, vec3_t* point);
+    uint8_t (*intersect)(struct _geometryObject* this, ray_t ray, float* point);
+    vec3_t (*normal)(struct _geometryObject* this, vec3_t point);
 
     color_t color;
 
@@ -50,9 +51,13 @@ typedef struct _planeData{
 
 } planeData_t;
 
-uint8_t intersectSphere(struct _geometryObject* this, ray_t ray, vec3_t* point);
-uint8_t intersectBox(struct _geometryObject* this, ray_t ray, vec3_t* point);
-uint8_t intersectPlane(struct _geometryObject* this, ray_t ray, vec3_t* point);
+uint8_t intersectSphere(struct _geometryObject* this, ray_t ray, float* point);
+uint8_t intersectBox(struct _geometryObject* this, ray_t ray, float* point);
+uint8_t intersectPlane(struct _geometryObject* this, ray_t ray, float* point);
+
+vec3_t normalSphere(struct _geometryObject* this, vec3_t point);
+vec3_t normalBox(struct _geometryObject* this, vec3_t point);
+vec3_t normalPlane(struct _geometryObject* this, vec3_t point);
 
 geometryObject_t* createSphere(color_t color, vec3_t position, float radius);
 geometryObject_t* createBox(color_t color);

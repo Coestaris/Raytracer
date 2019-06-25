@@ -6,45 +6,43 @@
 
 color_t cast_ray(ray_t ray, renderScene_t* scene)
 {
-    float nearestDist = 9999999;
     int found = 0;
-
-    color_t nearestColor;
-    vec3_t point;
+    float nearestT = 99999999;
+    geometryObject_t* nearestObject = NULL;
 
     for(size_t i = 0; i < scene->geometryObjectsCount; i++)
     {
-        if(scene->geometryObjects[i]->intersect(scene->geometryObjects[i], ray, &point))
+        float t = 0;
+        if(scene->geometryObjects[i]->intersect(scene->geometryObjects[i], ray, &t))
         {
-            vec3_t line = vec3(ray.position.x - point.x, ray.position.y - point.y, ray.position.z - point.z);
-            float len = vec3_len(line);
-            if(len < nearestDist)
+            if(-t < nearestT)
             {
-                nearestDist = len;
-                nearestColor = scene->geometryObjects[i]->color;
+                nearestT = -t;
+                nearestObject = scene->geometryObjects[i];
             }
             found = true;
         }
     }
 
-    return found ? nearestColor : scene->environmentColor;
+    if(!found)
+        return scene->environmentColor;
+    else
+    {
+        vec3_t point = getRayPoint(ray, -nearestT);
+        vec3_t normal = nearestObject->normal(nearestObject, point);
+        float d = vec3_dot(ray.direction, normal);
+
+        return color(nearestObject->color.r * fabs(d),
+                     nearestObject->color.g * fabs(d),
+                     nearestObject->color.b * fabs(d),
+                     1);
+    }
 }
 
-void raycast(renderScene_t* scene)
+void raycast(renderScene_t* scene, void drawCallback(pixelBuffer_t* buffer))
 {
-    glClearColor(0, 0, 0, 0);
-    glBegin(GL_POINTS);
-    for(float pixelX = scene->screenPos.x + 0.5 - scene->screenSize.x / 2.0; pixelX < scene->screenSize.x / 2.0 + scene->screenPos.x; pixelX += 1)
-        for(float pixelY = scene->screenPos.y + 0.5 - scene->screenSize.x / 2.0; pixelY < scene->screenSize.y / 2.0 + scene->screenPos.y; pixelY += 1)
-        {
-            ray_t ray = getRay(scene->camera, pixelX, pixelY);
-            color_t color = cast_ray(ray, scene);
-
-            glColor3f(color.r, color.g, color.b);
-            glVertex2f(pixelX + scene->screenSize.x / 2.0, pixelY + scene->screenSize.y / 2.0);
-        }
-    glEnd();
-    graphicsFlush();
+    size_t bufferCount = scene->screenSize.x * scene->screenSize.y;
+    raycast_async(scene, bufferCount, drawCallback);
 }
 
 void raycast_async(renderScene_t* scene, size_t bufferCount, void drawCallback(pixelBuffer_t* buffer))
@@ -53,7 +51,6 @@ void raycast_async(renderScene_t* scene, size_t bufferCount, void drawCallback(p
     buffer->colors = malloc(sizeof(color_t) * bufferCount);
     buffer->pixels = malloc(sizeof(vec2_t) * bufferCount);
     buffer->count = bufferCount;
-    buffer->scene = scene;
 
     size_t bufferCounter = 0;
 

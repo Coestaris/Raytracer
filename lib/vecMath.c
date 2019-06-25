@@ -14,7 +14,7 @@ vec2_t vec2_sub(vec2_t a, vec2_t b)
     return vec2(a.x - b.x, a.y - b.y);
 }
 
-float vec2_smult(vec2_t a, vec2_t b)
+float vec2_dot(vec2_t a, vec2_t b)
 {
     return (a.x * b.x + a.y * b.y);
 }
@@ -66,7 +66,7 @@ vec3_t vec3_sub(vec3_t a, vec3_t b)
     return vec3(a.x - b.x, a.y - b.y, a.z - b.z);
 }
 
-float vec3_smult(vec3_t a, vec3_t b)
+float vec3_dot(vec3_t a, vec3_t b)
 {
     return (a.x * b.x + a.y * b.y + a.z * b.z);
 }

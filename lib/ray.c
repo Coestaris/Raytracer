@@ -4,6 +4,11 @@
 
 #include "ray.h"
 
+vec3_t getRayPoint(ray_t ray, float t)
+{
+    return vec3_add(ray.position, vec3_mult(ray.direction, t));
+}
+
 ray_t getRay(camera_t* camera, float x, float y)
 {
     vec3_t dir = camera->view;

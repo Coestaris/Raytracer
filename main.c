@@ -18,7 +18,7 @@ renderScene_t* scene;
 void setupScene(void)
 {
     scene = createScene(
-            vec3(20, 10, 20), vec3(2.5, 2.5, 2.5), .08,
+            vec3(20, 15, 15), vec3(2.5, 2.5, 2.5), .05,
             vec2(0, 0), vec2(WIN_W, WIN_H));
 
     pushGeometryObject(scene, createSphere(color(0, 1, 1, 1), vec3(0, 0, 0), 1.5));
@@ -36,18 +36,8 @@ void setupScene(void)
 
 void drawCallback(pixelBuffer_t* buffer)
 {
-    //Todo pbo, or something
-    glBegin(GL_POINTS);
-    {
-        for(size_t i = 0; i < buffer->count; i++)
-        {
-            glColor3f(buffer->colors[i].r, buffer->colors[i].g, buffer->colors[i].b);
-            glVertex2f(buffer->pixels[i].x, buffer->pixels[i].y);
-        }
-    }
-    glEnd();
+    surfDrawPixels(buffer);
     graphicsFlush();
-    //usleep(1000);
 }
 
 int main(int argc, char const *argv[])
@@ -55,16 +45,9 @@ int main(int argc, char const *argv[])
     initGraphics(argc, argv, WIN_W, WIN_H, "Simple RayTracer Sample");
 
     setupScene();
-    double a = 0;
 
-    while(1)
-    {
-        scene->camera->eye = vec3(20 * cos(a), 10, 20 * sin(a += 0.1));
-        recalcCamera(scene->camera);
+    raycast_async(scene, 100000, drawCallback);
 
-        raycast(scene);
-        //puts("Raytracing done!");
-    }
     freezeGraphics();
 
     freeScene(scene, true);

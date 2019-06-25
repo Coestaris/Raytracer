@@ -31,6 +31,7 @@ typedef struct _camera {
 
 } camera_t;
 
+vec3_t getRayPoint(ray_t ray, float t);
 ray_t getRay(camera_t* camera, float x, float y);
 void recalcCamera(camera_t* camera);
 

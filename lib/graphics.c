@@ -48,6 +48,10 @@ void initGraphics(int argc, const char** argv, uint16_t win_w, uint16_t win_h, c
     printf("[GL Spec]: Using OpenGL Version: %s\n", (char*) glGetString(GL_VERSION));
     printf("[GL Spec]: Using OpenGL Rendered: %s\n", (char*) glGetString(GL_RENDERER));
     printf("[GL Spec]: GLSH Version: %s\n=========\n", (char*) glGetString(GL_SHADING_LANGUAGE_VERSION));
+
+#ifdef USE_FBO
+    surfInit();
+#endif
 }
 
 void graphicsFlush(void)
@@ -59,6 +63,96 @@ void graphicsFlush(void)
 #endif
 }
 
+#ifdef USE_FBO
+GLuint surfTexID;
+GLuint surfFBO;
+
+void surfInit()
+{
+    glGenTextures(1, &surfTexID);
+    glBindTexture(GL_TEXTURE_2D, surfTexID);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    uint8_t* data = malloc(winW * winH * 4);
+    memset(data, 0, winW * winH * 4);
+    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA, winW, winH, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    free(data);
+
+    glGenFramebuffers(1, &surfFBO);
+    glBindFramebuffer( GL_FRAMEBUFFER, surfFBO );
+    glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, surfTexID, 0 );
+    glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+}
+
+void surfBind()
+{
+    glColor4f(1, 1, 1, 1);
+    glBindTexture(GL_TEXTURE_2D, surfTexID);
+}
+
+int surfFree()
+{
+    glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+    glDeleteFramebuffers( 1, &surfFBO );
+    glDeleteTextures(1, &surfTexID);
+}
+
+int surfClear()
+{
+    uint8_t* data = malloc(winW * winH * 4);
+    memset(data, 0, winW * winH * 4);
+    glBindTexture(GL_TEXTURE_2D, surfTexID);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, winW, winH, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    free(data);
+}
+
+void surfDraw()
+{
+    surfBind();
+    glBegin(GL_QUADS);
+        glTexCoord2i(0, 0); glVertex2f(0.0, 0.0);
+        glTexCoord2i(1, 0); glVertex2f(winW, 0.0);
+        glTexCoord2i(1, 1); glVertex2f(winW, winH);
+        glTexCoord2i(0, 1); glVertex2f(0.0, winH);
+    glEnd();
+}
+
+void surfDrawPixels(pixelBuffer_t* buffer)
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, surfFBO);
+    glViewport(0, 0, winW, winH);
+
+    glBegin(GL_POINTS);
+    {
+        for(size_t i = 0; i < buffer->count; i++)
+        {
+            glColor3f(buffer->colors[i].r, buffer->colors[i].g, buffer->colors[i].b);
+            glVertex2f(buffer->pixels[i].x, buffer->pixels[i].y);
+        }
+    }
+    glEnd();
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    surfDraw();
+}
+
+#else
+void surfDrawPixels(pixelBuffer_t* buffer)
+{
+    glBegin(GL_POINTS);
+    {
+        for(size_t i = 0; i < buffer->count; i++)
+        {
+            glColor3f(buffer->colors[i].r, buffer->colors[i].g, buffer->colors[i].b);
+            glVertex2f(buffer->pixels[i].x, buffer->pixels[i].y);
+        }
+    }
+    glEnd();
+}
+#endif
 void displayFunc()
 {
     //glClear(GL_COLOR_BUFFER_BIT);
