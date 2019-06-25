@@ -2,7 +2,6 @@
 // Created by maxim on 6/24/19.
 //
 
-#include <stdlib.h>
 #include "structs.h"
 
 vec3_t vec3(float x, float y, float z)
@@ -41,4 +40,10 @@ color_t randColor(float min)
                  randRange(min, 1),
                  randRange(min, 1),
                  1);
+}
+
+float clip(float a)
+{
+    a = fabsf(a);
+    return a > 1 ? 1 : a;
 }

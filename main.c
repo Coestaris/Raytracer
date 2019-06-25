@@ -33,6 +33,9 @@ void setupScene(void)
 
     pushGeometryObject(scene, createPlane(color(.5, .5, .5, 1), vec3(0, 1, 0), vec3(2.5, 0, 2.5)));
 
+    //pushLightSource(scene, createLightSource(vec3(20, 20, -20), 0.8));
+    pushLightSource(scene, createLightSource(vec3(-20, 20, 20), 1));
+
     scene->environmentColor = color(0, 0, 0.2, 1);
 }
 
@@ -47,9 +50,13 @@ int main(int argc, char const *argv[])
     initGraphics(argc, argv, WIN_W, WIN_H, "Simple RayTracer Sample");
 
     setupScene();
+    float a = 0;
 
-    raycast_async(scene, 100000, drawCallback);
-
+    while(1)
+    {
+        scene->lightSources[0]->position = vec3(20 * cos(a), 20, 20 * sin(a += 0.1));
+        raycast(scene, drawCallback);
+    }
     freezeGraphics();
 
     freeScene(scene, true);

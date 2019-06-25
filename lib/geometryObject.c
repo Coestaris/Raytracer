@@ -60,11 +60,22 @@ uint8_t intersectSphere(struct _geometryObject* this, ray_t ray, float* t)
     float c = vec3_dot(a_c, a_c) - sd->radius * sd->radius;
 
     float discriminant = b * b - 4 * a * c;
-    if(discriminant < 0) return 0;
 
-    float sq = sqrt(discriminant);
+    if(discriminant < 0)
+        return false;
+
+    float sq = sqrtf(discriminant);
     float t1 = (-b + sq) / (2.0 * a);
     float t2 = (-b - sq) / (2.0 * a);
+
+/*    if(fabs(discriminant) <= 1e-3)
+    {
+        *t = t1;
+        return true;
+    }*/
+
+    if(t1 > 1 || t2 > 1)
+        return false;
 
     *t = t1 > t2 ? t1 : t2;
     return true;

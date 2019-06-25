@@ -5,6 +5,9 @@
 #ifndef RAYTRACER_STRUCTS_H
 #define RAYTRACER_STRUCTS_H
 
+#include <stdlib.h>
+#include <math.h>
+
 typedef struct _vec3 {
     float x;
     float y;
@@ -27,6 +30,7 @@ vec3_t vec3(float x, float y, float z);
 vec2_t vec2(float x, float y);
 color_t color(float r, float g, float b, float a);
 
+float clip(float a);
 float randRange(float a, float b);
 color_t randColor(float min);
 

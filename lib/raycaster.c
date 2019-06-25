@@ -4,11 +4,11 @@
 
 #include "raycaster.h"
 
-color_t cast_ray(ray_t ray, renderScene_t* scene)
+float intersects(ray_t ray, renderScene_t* scene, geometryObject_t** nearestObject)
 {
     int found = 0;
     float nearestT = 99999999;
-    geometryObject_t* nearestObject = NULL;
+    *nearestObject = NULL;
 
     for(size_t i = 0; i < scene->geometryObjectsCount; i++)
     {
@@ -18,25 +18,45 @@ color_t cast_ray(ray_t ray, renderScene_t* scene)
             if(-t < nearestT)
             {
                 nearestT = -t;
-                nearestObject = scene->geometryObjects[i];
+                *nearestObject = scene->geometryObjects[i];
             }
             found = true;
         }
     }
 
-    if(!found)
-        return scene->environmentColor;
-    else
-    {
-        vec3_t point = getRayPoint(ray, -nearestT);
-        vec3_t normal = nearestObject->normal(nearestObject, point);
-        float d = vec3_dot(ray.direction, normal);
+    if(found) return nearestT;
+    else return -1;
+}
 
-        return color(nearestObject->color.r * fabs(d),
-                     nearestObject->color.g * fabs(d),
-                     nearestObject->color.b * fabs(d),
-                     1);
+color_t cast_ray(ray_t ray, renderScene_t* scene)
+{
+    geometryObject_t* nearestObject;
+    float t = intersects(ray, scene, &nearestObject);
+
+    if(nearestObject == NULL)
+        return scene->environmentColor;
+
+    float d = 0.05;
+    for(size_t i = 0; i < scene->lightSourcesCount; i++)
+    {
+        vec3_t point = getRayPoint(ray, -t);
+        vec3_t rayDir = vec3_normalize(vec3_sub(point, scene->lightSources[i]->position));
+        ray_t lightRay = {.position = point, .direction = rayDir };
+
+        geometryObject_t* no;
+        intersects(lightRay, scene, &no);
+
+        if(no == NULL)
+        {
+            vec3_t normal = nearestObject->normal(nearestObject, point);
+            d += vec3_dot(rayDir, normal) * scene->lightSources[i]->brightness;
+        }
     }
+
+    return color(clip(nearestObject->color.r * d),
+                 clip(nearestObject->color.g * d),
+                 clip(nearestObject->color.b * d),
+                 1);
 }
 
 void raycast(renderScene_t* scene, void drawCallback(pixelBuffer_t* buffer))
