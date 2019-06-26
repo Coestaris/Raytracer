@@ -34,6 +34,6 @@ void recalcCamera(camera_t* camera)
     camera->up = vec3_vmult(camera->right, camera->view);
     camera->up = vec3_normalize(camera->up );
     camera->fov_tan = tanf(camera->fov / 2);
-    camera->aspect = winW / (float)winH;
+    camera->aspect = 1;//winH / (float)winW;
 
 }

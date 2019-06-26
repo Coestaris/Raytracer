@@ -1,0 +1,3 @@
+[submodule "oil"]
+	path = oil
+	url = https://github.com/Coestaris/oil

@@ -32,22 +32,23 @@ void setupScene(void)
     };
 
     material_t* materials[SPHERE_COUNT] = {
-        createMaterial(randColor(0), 2, drand48()), createMaterial(randColor(0), 2, drand48()),
-        createMaterial(randColor(0), 2, drand48()), createMaterial(randColor(0), 2, drand48()),
-        createMaterial(randColor(0), 2, drand48()), createMaterial(randColor(0), 2, drand48()),
-        createMaterial(randColor(0), 2, drand48()), createMaterial(randColor(0), 2, drand48()),
+        createMaterial(randColor(0), 2, 1), createMaterial(randColor(0), 2, 1),
+        createMaterial(randColor(0), 2, 1), createMaterial(randColor(0), 2, 1),
+        createMaterial(randColor(0), 2, 1), createMaterial(randColor(0), 2, 1),
+        createMaterial(randColor(0), 2, 1), createMaterial(randColor(0), 2, 1),
     };
-    material_t* planeMaterial = createMaterial(color(.5, .5, .5, 1), 2, 0.7);
+    material_t* planeMaterial = createMaterial(color(.5, .5, .5, 1), 2, 1);
 
     for(size_t i = 0; i < SPHERE_COUNT; i++)
         pushGeometryObject(scene, createSphere(materials[i], coordinates[i], radius[i]));
     pushGeometryObject(scene, createPlane(planeMaterial, vec3(0, 1, 0), vec3(2.5, 0, 2.5)));
 
-    pushLightSource(scene, createLightSource(vec3(20, 20, -20), color(1, 0, 1, 1), 50));
-    pushLightSource(scene, createLightSource(vec3(-20, 20, 20), color(0, 1, 1, 1), 50));
+    pushLightSource(scene, createLightSource(vec3(20, 20, -20), color(1, 1, 1, 1), 50));
+    pushLightSource(scene, createLightSource(vec3(-20, 20, 20), color(1, 1, 1, 1), 100));
 
-    scene->antialiasingIterations = 5;
-    scene->antialiasingRange = 1;
+    scene->antialiasingIterations = 1;
+    scene->refractionDepth = 2;
+    scene->antialiasingRange = 0;
     scene->environmentDarkness = 0.05;
     scene->environmentColor = color(0, 0, 0, 1);
 }
@@ -65,7 +66,7 @@ int main(int argc, char const *argv[])
     setupScene();
     float a = 0;
 
-    raycast_async(scene, WIN_H, drawCallback);
+    raycast_async(scene, WIN_H * 3, drawCallback);
 
     freezeGraphics();
 

@@ -51,7 +51,7 @@ color_t cast_ray(ray_t ray, renderScene_t* scene, int depth)
             scene->environmentDarkness,
             1);
 
-    if(nearestObject->material->reflectionValue != 0)
+    if(nearestObject->material->reflectionValue != 1)
     {
         vec3_t reflectedRay = reflect(ray.direction, nearestObject->normal(nearestObject, point));
 
@@ -112,7 +112,8 @@ void raycast_async(renderScene_t* scene, size_t bufferCount, void drawCallback(p
                 color_t castedColor = cast_ray(
                         getRay(scene->camera,
                                 pixelX + drand48() * scene->antialiasingRange,
-                                pixelY + drand48() * scene->antialiasingRange), scene, 10);
+                                pixelY + drand48() * scene->antialiasingRange), scene,
+                                scene->refractionDepth);
 
                 c = color_cadd(c, castedColor);
             }
