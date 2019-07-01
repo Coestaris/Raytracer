@@ -103,26 +103,39 @@ void raycast_async(renderScene_t* scene, size_t bufferCount, void drawCallback(p
 
     size_t bufferCounter = 0;
 
-    for(float pixelX = scene->screenPos.x + 0.5 - scene->screenSize.x / 2.0; pixelX < scene->screenSize.x / 2.0 + scene->screenPos.x; pixelX += 1)
-        for(float pixelY = scene->screenPos.y + 0.5 - scene->screenSize.x / 2.0; pixelY < scene->screenSize.y / 2.0 + scene->screenPos.y; pixelY += 1)
+    float dC = 1.0 / scene->MSAAFactor;
+    float divFactor = scene->antialiasingIterations * (scene->MSAAFactor * scene->MSAAFactor);
+    float xOffset = - scene->screenSize.x / 2.0;
+    float yOffset = - scene->screenSize.x / 2.0;
+
+    for(int screenX = 0; screenX < scene->screenSize.x; screenX++)
+        for(int screenY = 0; screenY < scene->screenSize.y; screenY++)
         {
             color_t c = color(0, 0, 0, 0);
-            for(int i = 0; i < scene->antialiasingIterations; i++)
-            {
-                color_t castedColor = cast_ray(
-                        getRay(scene->camera,
-                                pixelX + drand48() * scene->antialiasingRange,
-                                pixelY + drand48() * scene->antialiasingRange), scene,
+
+            for(float dx = 0; dx < 1; dx += dC)
+                for(float dy = 0; dy < 1; dy += dC)
+                {
+                    float pixelX = xOffset + screenX + dx;
+                    float pixelY = yOffset + screenY + dy;
+
+                    for (int i = 0; i < scene->antialiasingIterations; i++)
+                    {
+                        color_t castedColor = cast_ray(
+                                getRay(scene->camera,
+                                       pixelX + drand48() * scene->antialiasingRange,
+                                       pixelY + drand48() * scene->antialiasingRange), scene,
                                 scene->refractionDepth);
 
-                c = color_cadd(c, castedColor);
-            }
+                        c = color_cadd(c, castedColor);
+                    }
+                }
 
-            c = color_div(c, scene->antialiasingIterations);
+            c = color_div(c, divFactor);
 
             buffer->colors[bufferCounter] = c;
-            buffer->pixels[bufferCounter].x = pixelX + scene->screenSize.x / 2.0;
-            buffer->pixels[bufferCounter].y = pixelY + scene->screenSize.y / 2.0;
+            buffer->pixels[bufferCounter].x = screenX;
+            buffer->pixels[bufferCounter].y = screenY;
             bufferCounter++;
 
             if(bufferCounter == bufferCount)

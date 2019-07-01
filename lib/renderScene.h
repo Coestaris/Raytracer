@@ -43,6 +43,8 @@ typedef struct _renderScene {
     float antialiasingRange;
 
     int refractionDepth;
+    int MSAAFactor;
+
 } renderScene_t;
 
 color_t getLightIntensity(lightSource_t* source, vec3_t point);
